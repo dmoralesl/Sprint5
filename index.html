@@ -8,7 +8,9 @@
     <title>Jokes & more</title>
   </head>
   <body>
-    <div id="weather">Today: cloudy</div>
+    <div id="weather">
+        
+    </div>
     <main>
       <h2>Get stress out with some jokes</h2>
       <div id="jokeContainer"></div>
@@ -20,6 +22,8 @@
       <button type="button" onclick="showJoke()">Next joke</button>
     </main>
 
+    <!-- Trick to avoid error from exports not defined with our currnent tsconfig  -->
+    <script>var exports = {};</script>
     <script src="/src/index.js"></script>
   </body>
 </html>

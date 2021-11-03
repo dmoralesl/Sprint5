@@ -54,6 +54,13 @@ main h2 {
   font-weight: bold;
   color: #5a5959;
   font-size: smaller;
+  display: flex;
+  gap: 0.3rem;
+  flex-direction: column;
+  border-bottom: 1px solid gray;
+  border-right: 1px solid gray;
+  border-radius: 0.75rem;
+  padding: 1rem;
 }
 
 #jokeScore button:nth-child(1) {

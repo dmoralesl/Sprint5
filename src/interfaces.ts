@@ -1,11 +1,30 @@
+export {
+    JokeScore, 
+    JokeResponse,
+    WeatherInfo
+};
 
-export interface JokeScore {
+interface JokeScore {
     joke: string;
     score: 1 | 2 | 3;
     date: string;
 }
 
-export interface JokeResponse {
+interface JokeResponse {
     id: string;
     joke: string;
 }
+
+
+interface WeatherInfo {
+    city: string;
+    country: string;
+    main: string;
+    description: string;
+    temperature: number;
+    feelsLike: number;
+    minTemp: number;
+    maxTemp: number;
+    humidity: number;
+}
+
