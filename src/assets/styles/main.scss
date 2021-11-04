@@ -1,4 +1,5 @@
 $strong-text: rgb(90, 89, 89);;
+$yellow-emoji: #EDC951;
 
 body {
     height: 100vh;
@@ -8,50 +9,56 @@ body {
     overflow: hidden;
 }
 
-body::before {
-    content: "";
-    background-image: url('/src/assets/images/background-image.jpg');
-    background-repeat: no-repeat;
-    background-size: cover;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    bottom: 0px;
-    left: 0px;
-    opacity: 0.7;
-    z-index: -1;
-    
-}
 
 main {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
-    width: 50vw;
-    height: 50vh;
-    margin: auto;
-    background-color: #e3e3e3;
-    border-radius: 1rem;
-    box-shadow: 0 0 .5rem rgba(158, 153, 153, 0.616);
-    padding: 2rem 1.5rem;
 
-    button {
-        padding: 1rem 2rem;
-        color: white;
-        background-color: green;
-        border-radius: .5rem;
-        cursor: pointer;
+    width: 100vw;
+    height: 100vh;
+    margin: auto;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 55%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+
+    div:first-child {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+        width: 20vw;
+        height: 50vh;
+        padding: 2rem 1.5rem;
+
     }
 
     h2 {
         font-size: larger;
-        color: $strong-text;
         font-weight: bolder;
 
     }
 
+    button {
+        padding: 1rem 2rem;
+        border-radius: .5rem;
+        cursor: pointer;
+        background-color: $yellow-emoji;
+        color: black;
+        width: 50%;
+        max-width: 13rem;
+        max-height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: end;
+    
+    }
+}
+
+.vertical {
+    border-left: 1.5px solid black;
 }
 
 #weather {
@@ -60,22 +67,64 @@ main {
     left: .5rem;
     font-weight: bold;
     color: $strong-text;
-    font-size: smaller;
     display: flex;
-    gap: .3rem;
-    flex-direction: column;
-    border-bottom: 1px solid gray;
-    border-right: 1px solid gray;
-    border-radius: .75rem;
-    padding: 1rem;
+    gap: .5rem;
+    padding: .5rem;
 
+    div:last-child {
+        margin: auto;
+
+        &::after {
+            content: "C";
+        }
+    }
 }
 
 #jokeScore {
-    button:nth-child(1) {
-        background-color: red;
+    
+    display: flex;
+    justify-content: space-between;
+
+    img {
+        width: 25%;
+        cursor: pointer;
     }
-    button:nth-child(2) {
-        background-color: orange;
-    }
+}
+
+#decorationTop {
+    position: absolute;
+    top: 5vh;
+    right: 5vw;
+    height: 25vh;
+}
+
+#decorationBottom {
+    position: absolute;
+    bottom: 5vh;
+    left: 5vw;
+    height: 25vh;
+}
+
+// Source: https://codepen.io/leland/pen/NNPmqj
+.dislodged-border {
+    position: relative;
+    text-decoration: none;
+  }
+
+.dislodged-border,
+.dislodged-border:before {
+    border-radius: 30px;
+    box-sizing: border-box;
+}
+
+.dislodged-border:before {
+    border: 2px solid black;
+    content: "";
+    display: block;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    top: -5px;
+    left: -3px;
+    z-index: 1;
 }

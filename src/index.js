@@ -14,6 +14,10 @@ let currentJoke;
 // Since headers are not dynamic for this case use we can define it just one time outside function
 const headers = new Headers();
 headers.append('Accept', 'application/json');
+// Setting weather info if Geolocation allowed by browser and user
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(success);
+}
 async function getJoke() {
     const isCuckNorrisTime = Math.random() < 0.5;
     let jokeResponse;
@@ -21,7 +25,8 @@ async function getJoke() {
     if (isCuckNorrisTime) {
         // Getting data from Chuck Norris API and forcing return object to JoseResponse type
         jokeResponse = await fetch(API_URL_NORRIS, { headers });
-        console.log(typeof jokeResponse);
+        // Since we don't know the exact content of the response and it can be change along the time (it's not our backend)
+        // we can justify use any on this point
         const rawJoke = await jokeResponse.json();
         joke = {
             id: rawJoke.id,
@@ -39,9 +44,14 @@ async function getJoke() {
     return joke;
 }
 async function showJoke() {
-    const joke = await getJoke();
+    let joke;
+    // We will get new joke if current is too long (for background style reasons)
+    do {
+        joke = await getJoke();
+    } while (joke.joke.length > 250);
     if (jokeContainer) {
         jokeContainer.innerHTML = `"${joke.joke}"`;
+        setRandomBg();
     }
 }
 async function setJokeScore(score) {
@@ -63,19 +73,19 @@ async function setJokeScore(score) {
     // Jumping into next joke to avoid scoring twice the same joke
     await showJoke();
 }
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(success);
-}
 async function getWeatherFromCoords(latitude, longitude) {
     const rawWeatherData = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPENWEATHER_API_KEY}`);
+    // We can use any there because response of this API is huge and we cannot parse all elements. Plus to that it's an external API that
+    // we not are controlling so in the future can change some type of the attributes (or add/remove them) and break our custom type
     const weatherData = await rawWeatherData.json();
     // Creating and returning an object of type WeatherInfo
     return {
         city: weatherData.name ?? '',
         country: weatherData.sys.country ?? '',
         main: weatherData.weather[0].main ?? '',
+        icon: weatherData.weather[0].icon ?? '',
         description: weatherData.weather[0].description ?? '',
-        // We must change from fahrenheit to celsius
+        // We must change from kelvin
         temperature: kelvinToCelsius(weatherData.main.temp),
         feelsLike: kelvinToCelsius(weatherData.main.feels_like),
         minTemp: kelvinToCelsius(weatherData.main.temp_min),
@@ -84,55 +94,39 @@ async function getWeatherFromCoords(latitude, longitude) {
     };
 }
 async function success(pos) {
-    var crd = pos.coords;
-    const weatherData = await getWeatherFromCoords(crd.latitude, crd.longitude);
-    // Creating elements of DOM to render in Weather part
+    const weatherData = await getWeatherFromCoords(pos.coords.latitude, pos.coords.longitude);
+    // Getting DOM elements to render in Weather part
     let weatherContainer = document.querySelector('#weather');
-    if (!weatherContainer) {
+    let weatherIcon = document.querySelector('img');
+    let temperature = document.querySelector('#tempearature');
+    // Guard clause
+    if (!weatherContainer || !weatherIcon || !temperature) {
         return;
     }
-    // Location and main weather
-    let headerWeather = document.createElement('div');
-    headerWeather.style.display = "flex";
-    headerWeather.style.alignItems = "center";
-    headerWeather.style.gap = ".3rem";
-    let location = document.createElement('div');
-    let city = document.createElement('span');
-    city.innerHTML = weatherData.city;
-    let country = document.createElement('span');
-    country.innerHTML = ` (${weatherData.country})`;
-    location.appendChild(city);
-    location.appendChild(country);
-    headerWeather.appendChild(location);
-    const delimiter = document.createTextNode('|');
-    headerWeather.append(delimiter);
-    const mainWeather = document.createElement('span');
-    mainWeather.innerHTML = weatherData.main;
-    mainWeather.style.fontSize = 'larger';
-    headerWeather.appendChild(mainWeather);
-    weatherContainer.appendChild(headerWeather);
-    // Temperatures (current, max and min)
-    let temperatures = document.createElement('div');
-    temperatures.style.display = 'flex';
-    temperatures.style.justifyContent = 'center';
-    temperatures.style.alignItems = 'center';
-    temperatures.style.gap = '.5rem';
-    let currentTemp = document.createElement('span');
-    currentTemp.style.fontSize = "1.5rem";
-    currentTemp.innerHTML = weatherData.temperature.toString() + 'º';
-    let rangeTemps = document.createElement('div');
-    let minTemp = document.createElement('span');
-    minTemp.style.color = 'blue';
-    minTemp.innerHTML = weatherData.minTemp.toString() + 'º';
-    let maxTemp = document.createElement('span');
-    maxTemp.style.color = 'red';
-    maxTemp.innerHTML = weatherData.maxTemp.toString() + 'º';
-    temperatures.appendChild(minTemp);
-    temperatures.appendChild(currentTemp);
-    temperatures.appendChild(maxTemp);
-    weatherContainer.appendChild(temperatures);
+    weatherIcon.setAttribute('src', `http://openweathermap.org/img/w/${weatherData.icon}.png`);
+    weatherIcon.setAttribute('alt', `Icon of ${weatherData.main} weather`);
+    temperature.innerHTML = weatherData.temperature.toString() + 'º';
 }
 ;
+function setRandomBg() {
+    let mainContent = document.querySelector('main');
+    let decorationTop = document.querySelector('#decorationTop');
+    let decorationBottom = document.querySelector('#decorationBottom');
+    if (!mainContent || !decorationTop || !decorationBottom) {
+        return;
+    }
+    let randomNumbers = [];
+    while (randomNumbers.length < 3) {
+        const randomNumber = Math.floor(Math.random() * (6 - 1) + 1);
+        if (!randomNumbers.includes(randomNumber)) {
+            randomNumbers.push(randomNumber);
+        }
+    }
+    mainContent.style.backgroundImage = `url(/src/assets/images/bg-${randomNumbers[0]}.svg)`;
+    decorationTop.setAttribute('src', `/src/assets/images/bg-${randomNumbers[1]}.svg`);
+    decorationBottom.setAttribute('src', `/src/assets/images/bg-${randomNumbers[2]}.svg`);
+}
+setRandomBg();
 // Helper functions
 function kelvinToCelsius(fahrenheit) {
     return parseFloat((fahrenheit - 273.15).toFixed(1));

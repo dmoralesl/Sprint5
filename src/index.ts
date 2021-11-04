@@ -8,7 +8,7 @@ const API_URL_NORRIS: string = 'https://api.chucknorris.io/jokes/random';
 const OPENWEATHER_API_KEY: string = '0d739cccbf5a6a854c9ddf6b57c0857c';
 
 // Getting container where joke will be placed
-let jokeContainer: Element | null = document.querySelector('#jokeContainer');
+let jokeContainer: HTMLElement | null = document.querySelector('#jokeContainer');
 
 // Variable jokeScores will be an JokeScore array
 let jokeScores: JokeScore[] = [];
@@ -20,9 +20,15 @@ const headers: Headers = new Headers();
 headers.append('Accept', 'application/json');
 
 
+// Setting weather info if Geolocation allowed by browser and user
+if (navigator.geolocation) {
+
+    navigator.geolocation.getCurrentPosition(success);
+} 
+
 async function getJoke(): Promise<JokeResponse> {
     
-    const isCuckNorrisTime = Math.random() < 0.5;
+    const isCuckNorrisTime: boolean = Math.random() < 0.5;
     
     let jokeResponse: Response;
     let joke: JokeResponse;
@@ -30,8 +36,9 @@ async function getJoke(): Promise<JokeResponse> {
     if (isCuckNorrisTime) {
         // Getting data from Chuck Norris API and forcing return object to JoseResponse type
         jokeResponse = await fetch(API_URL_NORRIS, {headers});
-        console.log(typeof jokeResponse)
-        const rawJoke = await jokeResponse.json();
+        // Since we don't know the exact content of the response and it can be change along the time (it's not our backend)
+        // we can justify use any on this point
+        const rawJoke: any = await jokeResponse.json();
         
         joke = {
             id: rawJoke.id,
@@ -52,10 +59,16 @@ async function getJoke(): Promise<JokeResponse> {
 
 
 async function showJoke(): Promise<void> {
-    const joke = await getJoke()
+    
+    let joke: JokeResponse;
+    // We will get new joke if current is too long (for background style reasons)
+    do {
+        joke = await getJoke()
+    } while (joke.joke.length > 250);
 
     if (jokeContainer) {
         jokeContainer.innerHTML = `"${joke.joke}"`;
+        setRandomBg();
     }
 }
 
@@ -66,8 +79,8 @@ async function setJokeScore(score: 1 | 2 | 3): Promise<void> {
     if (!currentJoke) { return };
 
     // Getting current datetime in ISO format
-    const date = new Date();
-    let dateISO = date.toISOString();
+    const date: Date = new Date();
+    let dateISO: string = date.toISOString();
 
     // Adding info to jokeScores array
     jokeScores.push({
@@ -80,25 +93,22 @@ async function setJokeScore(score: 1 | 2 | 3): Promise<void> {
     await showJoke();
 }
  
-  
-if (navigator.geolocation) {
-
-    navigator.geolocation.getCurrentPosition(success);
-} 
-
 
 async function getWeatherFromCoords(latitude: number, longitude: number): Promise<WeatherInfo> {
     
-    const rawWeatherData = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPENWEATHER_API_KEY}`)
-    const weatherData = await rawWeatherData.json();
+    const rawWeatherData: Response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPENWEATHER_API_KEY}`)
+    // We can use any there because response of this API is huge and we cannot parse all elements. Plus to that it's an external API that
+    // we not are controlling so in the future can change some type of the attributes (or add/remove them) and break our custom type
+    const weatherData: any = await rawWeatherData.json();
     
     // Creating and returning an object of type WeatherInfo
     return {
         city: weatherData.name ?? '',
         country: weatherData.sys.country ?? '',
         main: weatherData.weather[0].main ?? '',
+        icon: weatherData.weather[0].icon ?? '',
         description: weatherData.weather[0].description ?? '',
-        // We must change from fahrenheit to celsius
+        // We must change from kelvin
         temperature: kelvinToCelsius(weatherData.main.temp),
         feelsLike: kelvinToCelsius(weatherData.main.feels_like),
         minTemp: kelvinToCelsius(weatherData.main.temp_min),
@@ -109,67 +119,54 @@ async function getWeatherFromCoords(latitude: number, longitude: number): Promis
 
 
 async function success(pos: GeolocationPosition) {
-    var crd = pos.coords;
-  
-    const weatherData = await getWeatherFromCoords(crd.latitude, crd.longitude);
+     
+    const weatherData = await getWeatherFromCoords(pos.coords.latitude, pos.coords.longitude);
     
-    // Creating elements of DOM to render in Weather part
-    let weatherContainer = document.querySelector('#weather');
-    if (!weatherContainer) { return; }
+    // Getting DOM elements to render in Weather part
+    let weatherContainer: HTMLElement | null = document.querySelector('#weather');
+    let weatherIcon: HTMLElement | null = document.querySelector('img');
+    let temperature: HTMLElement | null = document.querySelector('#tempearature');
+    // Guard clause
+    if (!weatherContainer || !weatherIcon || !temperature) { 
+        return; 
+    }
     
-    // Location and main weather
-    let headerWeather = document.createElement('div');
-    headerWeather.style.display = "flex";
-    headerWeather.style.alignItems = "center";
-    headerWeather.style.gap = ".3rem";
-    let location = document.createElement('div');
-    let city = document.createElement('span');
-    city.innerHTML = weatherData.city;
-    let country = document.createElement('span');
-    country.innerHTML = ` (${weatherData.country})`;
-    location.appendChild(city);
-    location.appendChild(country);
-    headerWeather.appendChild(location);
 
-    const delimiter = document.createTextNode('|');
-    headerWeather.append(delimiter);
+    weatherIcon.setAttribute('src', `http://openweathermap.org/img/w/${weatherData.icon}.png`);
+    weatherIcon.setAttribute('alt', `Icon of ${weatherData.main} weather`);
 
-    const mainWeather = document.createElement('span');
-    mainWeather.innerHTML = weatherData.main;
-    mainWeather.style.fontSize = 'larger';
-    headerWeather.appendChild(mainWeather);
+    temperature.innerHTML = weatherData.temperature.toString() + 'º';
 
-    weatherContainer.appendChild(headerWeather);
-
-
-    // Temperatures (current, max and min)
-    let temperatures = document.createElement('div');
-    temperatures.style.display = 'flex';
-    temperatures.style.justifyContent = 'center';
-    temperatures.style.alignItems = 'center';
-    temperatures.style.gap = '.5rem';
-
-    let currentTemp = document.createElement('span');
-    currentTemp.style.fontSize = "1.5rem";
-    currentTemp.innerHTML = weatherData.temperature.toString() + 'º';
-    let rangeTemps = document.createElement('div');
-    let minTemp = document.createElement('span');
-    minTemp.style.color = 'blue';
-    minTemp.innerHTML = weatherData.minTemp.toString() + 'º';
-    let maxTemp = document.createElement('span');
-    maxTemp.style.color = 'red';
-    maxTemp.innerHTML = weatherData.maxTemp.toString() + 'º';
-    
-    temperatures.appendChild(minTemp);
-    temperatures.appendChild(currentTemp);
-    temperatures.appendChild(maxTemp);
-
-    weatherContainer.appendChild(temperatures);
 
 };
+
+function setRandomBg(): void {
+
+    let mainContent: HTMLElement | null= document.querySelector('main');
+    let decorationTop: HTMLElement | null = document.querySelector('#decorationTop');
+    let decorationBottom: HTMLElement | null = document.querySelector('#decorationBottom');
+
+
+    if (!mainContent || !decorationTop || !decorationBottom) { return; }
+
+    let randomNumbers: number[] = [];
+    while (randomNumbers.length < 3) {
+        const randomNumber: number = Math.floor(Math.random() * (6 - 1) + 1);
+        if (!randomNumbers.includes(randomNumber)) {
+            randomNumbers.push(randomNumber)
+        }
+    }
+
+    mainContent.style.backgroundImage = `url(/src/assets/images/bg-${randomNumbers[0]}.svg)`;
+    decorationTop.setAttribute('src', `/src/assets/images/bg-${randomNumbers[1]}.svg`);
+    decorationBottom.setAttribute('src', `/src/assets/images/bg-${randomNumbers[2]}.svg`);
+
+}
+setRandomBg();
 
 // Helper functions
 
 function kelvinToCelsius(fahrenheit: number): number {
+
     return parseFloat((fahrenheit - 273.15).toFixed(1));
 }

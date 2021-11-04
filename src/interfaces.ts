@@ -20,6 +20,7 @@ interface WeatherInfo {
     city: string;
     country: string;
     main: string;
+    icon: string;
     description: string;
     temperature: number;
     feelsLike: number;
