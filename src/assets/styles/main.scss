@@ -1,0 +1,130 @@
+$strong-text: rgb(90, 89, 89);;
+$yellow-emoji: #EDC951;
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+
+main {
+
+    width: 100vw;
+    height: 100vh;
+    margin: auto;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 55%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+
+    div:first-child {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+        width: 20vw;
+        height: 50vh;
+        padding: 2rem 1.5rem;
+
+    }
+
+    h2 {
+        font-size: larger;
+        font-weight: bolder;
+
+    }
+
+    button {
+        padding: 1rem 2rem;
+        border-radius: .5rem;
+        cursor: pointer;
+        background-color: $yellow-emoji;
+        color: black;
+        width: 50%;
+        max-width: 13rem;
+        max-height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: end;
+    
+    }
+}
+
+.vertical {
+    border-left: 1.5px solid black;
+}
+
+#weather {
+    position: absolute;
+    top: .5rem;
+    left: .5rem;
+    font-weight: bold;
+    color: $strong-text;
+    display: flex;
+    gap: .5rem;
+    padding: .5rem;
+
+    div:last-child {
+        margin: auto;
+
+        &::after {
+            content: "C";
+        }
+    }
+}
+
+#jokeScore {
+    
+    display: flex;
+    justify-content: space-between;
+
+    img {
+        width: 25%;
+        cursor: pointer;
+    }
+}
+
+#decorationTop {
+    position: absolute;
+    top: 5vh;
+    right: 5vw;
+    height: 25vh;
+}
+
+#decorationBottom {
+    position: absolute;
+    bottom: 5vh;
+    left: 5vw;
+    height: 25vh;
+}
+
+// Source: https://codepen.io/leland/pen/NNPmqj
+.dislodged-border {
+    position: relative;
+    text-decoration: none;
+  }
+
+.dislodged-border,
+.dislodged-border:before {
+    border-radius: 30px;
+    box-sizing: border-box;
+}
+
+.dislodged-border:before {
+    border: 2px solid black;
+    content: "";
+    display: block;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    top: -5px;
+    left: -3px;
+    z-index: 1;
+}

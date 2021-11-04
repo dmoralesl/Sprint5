@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/assets/styles/main.css" />
+    <title>Jokes & more</title>
+  </head>
+  <body>
+    <div id="weather">
+        <img/>
+        <div class="vertical"></div>
+        <div id="tempearature"></div>
+    </div>
+    <main>
+        <div>
+            <h2>Get stress out with some jokes</h2>
+            <div id="jokeContainer"></div>
+            <div id="jokeScore">
+              <img src="/src/assets/images/bored.png" alt="Negative score joke" onclick="setJokeScore(3)">
+              <img src="/src/assets/images/meh.png" alt="Neutral score joke" onclick="setJokeScore(2)"/>
+              <img src="/src/assets/images/funny.png" alt="Positive score joke" onclick="setJokeScore(3)"/>
+            </div>
+            <button type="button" class="dislodged-border" onclick="showJoke()">Next joke</button>
+        </div>
+    </main>
+    <img id="decorationTop" src="" alt=""/>
+    <img id="decorationBottom" src="" alt=""/>
+    <!-- Trick to avoid error from exports not defined with our currnent tsconfig  -->
+    <script>var exports = {};</script>
+    <script src="/src/index.js"></script>
+  </body>
+</html>
