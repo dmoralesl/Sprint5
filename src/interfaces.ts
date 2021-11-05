@@ -1,9 +1,3 @@
-export {
-    JokeScore, 
-    JokeResponse,
-    WeatherInfo
-};
-
 interface JokeScore {
     joke: string;
     score: 1 | 2 | 3;
@@ -14,7 +8,6 @@ interface JokeResponse {
     id: string;
     joke: string;
 }
-
 
 interface WeatherInfo {
     city: string;
@@ -29,3 +22,8 @@ interface WeatherInfo {
     humidity: number;
 }
 
+export {
+  JokeScore,
+  JokeResponse,
+  WeatherInfo
+};
