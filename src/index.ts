@@ -20,9 +20,22 @@ const headers: Headers = new Headers();
 headers.append('Accept', 'application/json');
 
 // Setting weather info if Geolocation allowed by browser and user
+// else we will set Barcelona as default
 if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(success);
+  navigator.geolocation.getCurrentPosition(setWeatherElements);
 }
+setWeatherElements({
+  coords: {
+    latitude: 41.390205, // Barcelona coords
+    longitude: 2.154007,
+    accuracy: 65,
+    altitude: null,
+    altitudeAccuracy: null,
+    heading: null,
+    speed: null
+  },
+  timestamp: new Date().getTime()
+});
 
 async function getJoke (): Promise<JokeResponse> {
   const isCuckNorrisTime: boolean = Math.random() < 0.5;
@@ -83,6 +96,7 @@ async function setJokeScore (score: 1 | 2 | 3): Promise<void> {
     date: dateISO
   })
 
+  console.log(jokeScores);
   // Jumping into next joke to avoid scoring twice the same joke
   await showJoke();
 }
@@ -110,9 +124,9 @@ async function getWeatherFromCoords (latitude: number, longitude: number): Promi
 }
 
 // eslint-disable-next-line no-undef
-async function success (pos: GeolocationPosition) {
+async function setWeatherElements (pos: GeolocationPosition): Promise<void> {
   const weatherData = await getWeatherFromCoords(pos.coords.latitude, pos.coords.longitude);
-
+  console.log(pos)
   // Getting DOM elements to render in Weather part
   const weatherContainer: HTMLElement | null = document.querySelector('#weather');
   const weatherIcon: HTMLElement | null = document.querySelector('img');

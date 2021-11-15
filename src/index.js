@@ -6,18 +6,31 @@ const API_URL = 'https://icanhazdadjoke.com/';
 const API_URL_NORRIS = 'https://api.chucknorris.io/jokes/random';
 const OPENWEATHER_API_KEY = '0d739cccbf5a6a854c9ddf6b57c0857c';
 // Getting container where joke will be placed
-let jokeContainer = document.querySelector('#jokeContainer');
+const jokeContainer = document.querySelector('#jokeContainer');
 // Variable jokeScores will be an JokeScore array
-let jokeScores = [];
+const jokeScores = [];
 // Variable to save the joke obtained in previous http request. It will be used when score is provided
 let currentJoke;
 // Since headers are not dynamic for this case use we can define it just one time outside function
 const headers = new Headers();
 headers.append('Accept', 'application/json');
 // Setting weather info if Geolocation allowed by browser and user
+// else we will set Barcelona as default
 if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(success);
+    navigator.geolocation.getCurrentPosition(setWeatherElements);
 }
+setWeatherElements({
+    coords: {
+        latitude: 41.390205,
+        longitude: 2.154007,
+        accuracy: 65,
+        altitude: null,
+        altitudeAccuracy: null,
+        heading: null,
+        speed: null
+    },
+    timestamp: new Date().getTime()
+});
 async function getJoke() {
     const isCuckNorrisTime = Math.random() < 0.5;
     let jokeResponse;
@@ -34,7 +47,7 @@ async function getJoke() {
         };
     }
     else {
-        // Getting data from previous API 
+        // Getting data from previous API
         jokeResponse = await fetch(API_URL, { headers });
         // Returned value is an Response object we need to parse into javascript object
         joke = await jokeResponse.json();
@@ -54,22 +67,24 @@ async function showJoke() {
         setRandomBg();
     }
 }
+// eslint-disable-next-line no-unused-vars
 async function setJokeScore(score) {
-    // Guard clause to not run code with errors when the are any joke saved 
-    // in currentJoke (before first click on button "Next joke") 
+    // Guard clause to not run code with errors when the are any joke saved
+    // in currentJoke (before first click on button "Next joke")
     if (!currentJoke) {
         return;
     }
     ;
     // Getting current datetime in ISO format
     const date = new Date();
-    let dateISO = date.toISOString();
+    const dateISO = date.toISOString();
     // Adding info to jokeScores array
     jokeScores.push({
         joke: currentJoke.joke,
         score,
         date: dateISO
     });
+    console.log(jokeScores);
     // Jumping into next joke to avoid scoring twice the same joke
     await showJoke();
 }
@@ -93,12 +108,14 @@ async function getWeatherFromCoords(latitude, longitude) {
         humidity: weatherData.main.humidity
     };
 }
-async function success(pos) {
+// eslint-disable-next-line no-undef
+async function setWeatherElements(pos) {
     const weatherData = await getWeatherFromCoords(pos.coords.latitude, pos.coords.longitude);
+    console.log(pos);
     // Getting DOM elements to render in Weather part
-    let weatherContainer = document.querySelector('#weather');
-    let weatherIcon = document.querySelector('img');
-    let temperature = document.querySelector('#tempearature');
+    const weatherContainer = document.querySelector('#weather');
+    const weatherIcon = document.querySelector('img');
+    const temperature = document.querySelector('#tempearature');
     // Guard clause
     if (!weatherContainer || !weatherIcon || !temperature) {
         return;
@@ -109,13 +126,13 @@ async function success(pos) {
 }
 ;
 function setRandomBg() {
-    let mainContent = document.querySelector('main');
-    let decorationTop = document.querySelector('#decorationTop');
-    let decorationBottom = document.querySelector('#decorationBottom');
+    const mainContent = document.querySelector('main');
+    const decorationTop = document.querySelector('#decorationTop');
+    const decorationBottom = document.querySelector('#decorationBottom');
     if (!mainContent || !decorationTop || !decorationBottom) {
         return;
     }
-    let randomNumbers = [];
+    const randomNumbers = [];
     while (randomNumbers.length < 3) {
         const randomNumber = Math.floor(Math.random() * (6 - 1) + 1);
         if (!randomNumbers.includes(randomNumber)) {
